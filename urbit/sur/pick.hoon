@@ -5,7 +5,7 @@
 :: Manage your votes:
 ::
 +$  cmd
-  $%  [%newvote name=@t =opts open=@da stop=@da =able]
+  $%  [%mkvote name=@t =opts open=@da stop=@da =able]
       [%pick =vote-id opt=@u]
       [%collate =vote-id]
       [%delete =vote-id]
@@ -14,7 +14,7 @@
 :: Manage interstellar activity
 ::
 +$  msg
-  $%  [%vote-receive =vote]
+  $%  [%vote-new =vote]
       [%vote-reject =vote-id]
       [%pick =vote-id pick=@u]
       [%pick-ack =vote-id]

@@ -47,7 +47,6 @@
       (cmd-handle:hc !<(cmd vase))
       ::
         %pick-msg
-      ~&  >  [%pick %pick-msg]
       (msg-handle:hc !<(msg vase))
     ==
   [cards this]
@@ -66,27 +65,21 @@
   ^-  @uv
   (sham name src.bowl eny.bowl)
 ::
-++  send-vote
-  |=  =vote
-  |=  =ship
-  ^-  card
-  ~&  >  [%send-vote ship]
-  :*  %pass   ~[name.vote]
-      %agent  [ship %pick]
-      %poke   %pick-msg   !>((msg %vote-receive vote))
-  ==
-::
 ++  cmd-handle
   |=  =cmd
   ^-  (quip card _state)
   =,  cmd
   ?-  -.cmd
-      %newvote
-    ~&  >  [%newvote name]
+      %mkvote
     =.  pita  (~(put by pita) (mk-vote-id name) +.cmd)
     :_  state
     =-  ~&  >  -  -
-    (turn able (send-vote +.cmd))
+    %+  turn  able
+    |=  =ship
+    :*  %pass   ~[name]
+        %agent  [ship %pick]
+        %poke   %pick-msg   !>((msg %vote-new +.cmd))
+    ==
       %pick
     `state
       %collate
@@ -100,7 +93,7 @@
   ^-  (quip card _state)
   =,  msg
   ?-  -.msg
-      %vote-receive
+      %vote-new
     `state
 ::    =/  vote-wire=path  /vote/(scot %uv vote-id)
 ::    =+  ?:  (check-vote-id vote src.bowl)
