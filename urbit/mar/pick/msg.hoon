@@ -10,9 +10,6 @@
   --
 ++  grab
   |%
-  ++  noun
-    |=  n=*
-    ~&  >  [%grab n]
-    (msg n)
+  ++  noun  msg
   --
 --
