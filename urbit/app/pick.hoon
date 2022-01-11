@@ -71,7 +71,10 @@
   |=  =ship
   ^-  card
   ~&  >  [%send-vote ship]
-  [%pass ~[name.vote] %agent [ship %pick] %poke %pick-msg !>(vote)]
+  :*  %pass   ~[name.vote]
+      %agent  [ship %pick]
+      %poke   %pick-msg   !>((msg %vote-receive vote))
+  ==
 ::
 ++  cmd-handle
   |=  =cmd
