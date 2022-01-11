@@ -2,35 +2,35 @@
 ::
 |%
 ::
-:: Manage your votes:
+:: Manage your polls:
 ::
 +$  cmd
-  $%  [%mkvote name=@t =opts open=@da stop=@da =able]
-      [%pick =vote-id opt=@u]
-      [%collate =vote-id]
-      [%delete =vote-id]
+  $%  [%create name=@t =opts open=@da stop=@da =able]
+      [%pick =poll-id opt=@u]
+      [%collate =poll-id]
+      [%delete =poll-id]
   ==
 ::
 :: Manage interstellar activity
 ::
 +$  msg
-  $%  [%vote-new =vote]
-      [%vote-reject =vote-id]
-      [%pick =vote-id pick=@u]
-      [%pick-ack =vote-id]
-      [%pick-reject =vote-id why=?(%invalid %unable %expired)]
-      [%result =vote-id pick=(lest @u)]
-      [%result-ack =vote-id]
-      [%result-reject =vote-id why=?(%invalid %false %running)]
+  $%  [%poll-new =poll]
+      [%poll-reject =poll-id why=?(%invalid %running %unwanted)]
+      [%pick =poll-id pick=@u]
+      [%pick-ack =poll-id]
+      [%pick-reject =poll-id why=?(%invalid %unable %expired)]
+      [%result =poll-id pick=(lest @u)]
+      [%result-ack =poll-id]
+      [%result-reject =poll-id why=?(%invalid %false %running)]
   ==
 ::
-:: Defining votes
+:: Defining polls
 ::
-+$  vote-id      @uv
++$  poll-id      @uv
 +$  opts         (map @u @t)
-+$  pita         (map vote-id vote)
++$  pita         (map poll-id poll)
 +$  able         (list ship)
-+$  vote         $:  name=@t   =opts
++$  poll         $:  =poll-id  name=@t   =opts
                      open=@da  stop=@da  =able
                  ==
 --
