@@ -55,13 +55,11 @@
   |=  =path
   ^-  (quip card _this)
   ?+  path  (on-watch:def path)
-      [%poll @ *]
-    ?:  (~(has by pita) (slav %uv i.t.path))
-      ~&  >  [%successful-subscription path]
-      `this
-    ::
-    ~&  >>>  [%unexpected-subscription %bad-id]
+      [%poll @ ~]
     :_  this
+    ?:  (~(has by pita) (slav %uv i.t.path))
+      ~
+    ~&  >>>  [%unexpected-subscription %bad-id]
     ~[[%give %kick ~ ~]]
   ==
 ::
