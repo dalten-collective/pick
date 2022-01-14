@@ -53,13 +53,28 @@
 ::
 ++  on-watch
   |=  =path
+  ~&  >  [%pick %watch src.bowl path]
   ^-  (quip card _this)
+  :_  this
+  =*  id    (slav %uv &1:path)
+  =*  ship  (slav %p &2:path)
   ?+  path  (on-watch:def path)
-      [%poll @ ~]
-    :_  this
-    ?:  (~(has by pita) (slav %uv i.t.path))
+      ::
+      [@ ~]
+    ?:  (~(has by pita) id)
       ~
-    ~&  >>>  [%unexpected-subscription %bad-id]
+    ~&  >>>  [%pick %unexpected-subscription %bad-id]
+    ~[[%give %kick ~ ~]]
+      ::
+      [@ @ ~]
+    =/  poll  (~(get by pita) id)
+    ?~  poll
+      ~&  >>>  [%unexpected-subscription %bad-id]
+      ~[[%give %kick ~ ~]]
+    =,  u.poll
+    ?:  &(=(src.bowl ship) !=((find ~[src.bowl] able) ~))
+      ~
+    ~&  >>>  [%unexpected-subscription %bad-ship src.bowl]
     ~[[%give %kick ~ ~]]
   ==
 ::
@@ -76,10 +91,22 @@
   ^-  @uv
   (sham poll src.bowl)
 ::
-++  pass-card
-  |=  [=ship =poll-id =task:agent:gall]
-  ^-  card
-  [%pass ~[%poll (scot %uv poll-id)] %agent [ship %pick] task]
+:: Helper to pass all tasks to all ships.
+++  mk-quip
+  |=  [=poll-id ships=(list ship) tasks=(list task:agent:gall) =_state]
+  ^-  (quip card _state)
+  :_  state
+  %-  zing
+  %+  turn  ships
+  |=  =ship
+  %+  turn  tasks
+  |=  =task:agent:gall
+  ?-  task
+      [%watch *]
+    [%pass path.task %agent [ship %pick] task]
+      *
+    [%pass /(scot %uv poll-id) %agent [ship %pick] task]
+  ==
 ::
 ++  cmd-handle
   |=  =cmd
@@ -87,12 +114,13 @@
   ?-  -.cmd
       ::
       %create
-    =/  =poll  [(mk-poll-id +.cmd) +.cmd]
-    =.  pita  (~(put by pita) poll-id.poll poll)
-    :_  state
-    %+  turn  able.poll
-    |=  =ship
-    (pass-card ship poll-id.poll [%poke %pick-msg !>((msg %poll-new poll))])
+    =/  =poll  [(mk-poll-id +.cmd) our.bowl +.cmd]
+    %:  mk-quip
+      poll-id.poll
+      able.poll
+      ~[[%poke %pick-msg !>((msg %poll-new poll))]]
+      state(pita (~(put by pita) poll-id.poll poll))
+    ==
       ::
       %pick
     `state
@@ -107,35 +135,29 @@
   ^-  (quip card _state)
   =,  msg
   ?-  -.msg
-      %poll-new :: TODO make the branching logic clearer/simpler
+      %poll-new
     =,  poll
+    %^  mk-quip  poll-id  ~[src.bowl]
+    ::
     ?:  &((~(has by pita) poll-id) (gte now.bowl open))
       ~&  >>>  [%poll-new %already-running poll]
       :_  state
-      :~  %^  pass-card
-            src.bowl
-          poll-id
-        [%poke %pick-msg !>((^msg [%poll-reject poll-id %running]))]
-      ==
-    ?.  =((mk-poll-id +.poll) poll-id)
-      ~&  >>>  [%poll-new %invalid-id poll-id %expected (mk-poll-id +.poll)]
+      ~[[%poke %pick-msg !>((^msg [%poll-reject poll-id %running]))]]
+    ::
+    ?.  &(=((mk-poll-id +.+.poll) poll-id) =(src.bowl owner.poll))
+      ~&  >>>  [%poll-new %invalid-id poll-id %expected (mk-poll-id +.+.poll)]
       :_  state
-      :~  %^  pass-card
-            src.bowl
-          poll-id
-        [%poke %pick-msg !>((^msg [%poll-reject poll-id %invalid]))]
-      ==
+      ~[[%poke %pick-msg !>((^msg [%poll-reject poll-id %invalid]))]]
+    ::
     ~&  [%poll-new %accept poll-id]
-    =.  pita  (~(put by pita) poll-id poll) :: TODO deal with unsubbing if poll exists
-    :_  state
-    =-  ~&  >  -  -
-    ~[(pass-card src.bowl poll-id [%watch ~[%poll (scot %uv poll-id)]])]
+    :_  state(pita (~(put by pita) poll-id poll))
+    :~  [%watch /(scot %uv poll-id)]
+        [%watch /(scot %uv poll-id)/(scot %p our.bowl)]
+    ==
     ::
       %poll-reject
     `state
       %pick
-    `state
-      %pick-ack
     `state
       %pick-reject
     `state
