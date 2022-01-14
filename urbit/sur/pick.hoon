@@ -17,7 +17,6 @@
   $%  [%poll-new =poll]
       [%poll-reject =poll-id why=?(%invalid %running %unwanted)]
       [%pick =poll-id pick=@u]
-      [%pick-ack =poll-id]
       [%pick-reject =poll-id why=?(%invalid %unable %expired)]
       [%result =poll-id pick=(lest @u)]
       [%result-ack =poll-id]
@@ -26,11 +25,12 @@
 ::
 :: Defining polls
 ::
-+$  poll-id      @uv
-+$  opts         (map @u @t)
-+$  pita         (map poll-id poll)
-+$  able         (list ship)
-+$  poll         $:  =poll-id  name=@t   =opts
-                     open=@da  stop=@da  =able
-                 ==
++$  poll-id     @uv
++$  opts        (map @u @t)
++$  pita        (map poll-id poll)
++$  able        (list ship)
++$  poll        $:  =poll-id  owner=ship  name=@t
+                    =opts     open=@da    stop=@da
+                    =able
+                ==
 --
