@@ -6,7 +6,7 @@
 ::
 +$  cmd
   $%  [%create name=@t =opts open=@da stop=@da =able]
-      [%pick =poll-id opt=@u]
+      [%pick =poll-id pick=@u]
       [%collate =poll-id]
       [%delete =poll-id]
   ==
@@ -15,7 +15,7 @@
 ::
 +$  msg
   $%  [%poll-new =poll]
-      [%poll-reject =poll-id why=?(%invalid %running %unwanted)]
+      [%poll-edit =poll]
       [%pick =poll-id pick=@u]
       [%pick-reject =poll-id why=?(%invalid %unable %expired)]
       [%result =poll-id pick=(lest @u)]
@@ -27,10 +27,11 @@
 ::
 +$  poll-id     @uv
 +$  opts        (map @u @t)
++$  picks       (jug @u ship) :: TODO change to signatures?
 +$  pita        (map poll-id poll)
-+$  able        (list ship)
-+$  poll        $:  =poll-id  owner=ship  name=@t
-                    =opts     open=@da    stop=@da
-                    =able
++$  able        (set ship)
++$  poll        $:  =poll-id  owner=ship  =picks
+                    name=@t   =opts       open=@da    
+                    stop=@da  =able
                 ==
 --
