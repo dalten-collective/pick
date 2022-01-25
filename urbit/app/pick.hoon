@@ -55,79 +55,109 @@
   |=  =path
   ~&  >  [%pick %watch src.bowl path]
   ^-  (quip card _this)
-  :_  this
-  =*  id    (slav %uv &1:path)
-  =*  ship  (slav %p &2:path)
-  ?+  path  (on-watch:def path)
-      ::
-      [@ ~]
-    ?:  (~(has by pita) id)
-      ~
-    ~&  >>>  [%pick %unexpected-subscription %bad-id]
-    ~[[%give %kick ~ ~]]
-      ::
-      [@ @ ~]
-    =/  poll  (~(get by pita) id)
-    ?~  poll
-      ~&  >>>  [%unexpected-subscription %bad-id]
-      ~[[%give %kick ~ ~]]
-    =,  u.poll
-    ?:  &(=(src.bowl ship) !=((find ~[src.bowl] able) ~))
-      ~
-    ~&  >>>  [%unexpected-subscription %bad-ship src.bowl]
-    ~[[%give %kick ~ ~]]
-  ==
+  ?>  ?=([@ ~] path)
+
+  =/  poll  ~|(["no such poll" i.path] (~(got by pita) (slav %uv i.path)))
+  ~|  ["src not able" src.bowl able.poll]
+  ?>  (src-able:hc able.poll)
+  `this
 ::
-++  on-leave  on-leave:def
-++  on-agent  on-agent:def
+++  on-leave
+  |=  =path
+  ^-  (quip card _this)
+  ~&  [%on-leave path]
+  `this
+::
+++  on-agent
+  |=  [=wire =sign:agent:gall]
+  ^-  (quip card _this)
+  ~&  [%on-agent wire sign]
+  `this
+::  =*  poll-id  (slav %uv &1:wire)
+::  =*  ship     (slav %p &2:wire)
+::  =^  cards  state
+::  ?+  wire  (on-agent:def wire sign)
+::      [@ *]
+::    `state
+::    ?+  -.sign  (on-agent:def wire sign)
+::        ::
+::        %kick
+::      :_  state
+::      :~  :*
+::        %pass   wire
+::        %agent  [src.bowl %pick]
+::        %watch  wire
+::      ==  ==
+::        ::
+::        %fact
+::      ?+  p.cage.sign  (on-agent:def wire sign)
+::          %pick-msg
+::        `state :: (msg-handle:hc !<(msg q.cage.sign))
+::      ==
+::    ==
+::  ==
+::  [cards this]
+::
 ++  on-arvo   on-arvo:def
 ++  on-peek   on-peek:def
 ++  on-fail   on-fail:def
 --
 ::
-|_  =bowl:gall
+|_  bol=bowl:gall
+++  my
+  |=  =poll
+  ^-  ?
+  =(our.bol owner.poll)
+::
+++  src-able
+  |=  =able
+  ^-  ?
+  (~(has in able) src.bol)
+::
+++  src-owns
+  |=  =poll
+  |*  res=*
+  ^+  res
+  ~|  [%not-owner src.bol poll-id.poll]
+  ?>  =(owner.poll src.bol)
+  res
+::
 ++  mk-poll-id
   |=  poll=[@t opts @da @da able]
   ^-  @uv
-  (sham poll src.bowl)
-::
-:: Helper to pass all tasks to all ships.
-++  mk-quip
-  |=  [=poll-id ships=(list ship) tasks=(list task:agent:gall) =_state]
-  ^-  (quip card _state)
-  :_  state
-  %-  zing
-  %+  turn  ships
-  |=  =ship
-  %+  turn  tasks
-  |=  =task:agent:gall
-  ?-  task
-      [%watch *]
-    [%pass path.task %agent [ship %pick] task]
-      *
-    [%pass /(scot %uv poll-id) %agent [ship %pick] task]
-  ==
+  (sham poll src.bol)
 ::
 ++  cmd-handle
   |=  =cmd
   ^-  (quip card _state)
+  =,  +.cmd
   ?-  -.cmd
       ::
       %create
-    =/  =poll  [(mk-poll-id +.cmd) our.bowl +.cmd]
-    %:  mk-quip
-      poll-id.poll
-      able.poll
-      ~[[%poke %pick-msg !>((msg %poll-new poll))]]
-      state(pita (~(put by pita) poll-id.poll poll))
+    =/  =poll  [(mk-poll-id +.cmd) our.bol ~ +.cmd]
+    =,  poll
+    :_  state(pita (~(put by pita) poll-id.poll poll))
+    %+  turn  ~(tap in able)
+    |=  =ship
+    :*
+      %pass   /(scot %uv poll-id)
+      %agent  [ship %pick]
+      %poke   %pick-msg  !>((msg %poll-new poll))
     ==
       ::
       %pick
     `state
+      ::
       %collate
     `state
+      ::
       %delete
-    `state
+    :_  state(pita (~(del by pita) poll-id))
+    =/  =poll  ~|("bad-poll-id" (~(got by pita) poll-id))
+    =/  =wire  /(scot %uv poll-id)
+    ?:  (my poll)
+      ~[[%give %kick ~[wire] ~]]
+    ~[[%pass wire %agent [owner.poll %pick] %leave ~]]
   ==
 ::
 ++  msg-handle
@@ -135,30 +165,28 @@
   ^-  (quip card _state)
   =,  msg
   ?-  -.msg
+      ::
       %poll-new
     =,  poll
-    %^  mk-quip  poll-id  ~[src.bowl]
-    ::
-    ?:  &((~(has by pita) poll-id) (gte now.bowl open))
-      ~&  >>>  [%poll-new %already-running poll]
-      :_  state
-      ~[[%poke %pick-msg !>((^msg [%poll-reject poll-id %running]))]]
-    ::
-    ?.  &(=((mk-poll-id +.+.poll) poll-id) =(src.bowl owner.poll))
-      ~&  >>>  [%poll-new %invalid-id poll-id %expected (mk-poll-id +.+.poll)]
-      :_  state
-      ~[[%poke %pick-msg !>((^msg [%poll-reject poll-id %invalid]))]]
-    ::
-    ~&  [%poll-new %accept poll-id]
     :_  state(pita (~(put by pita) poll-id poll))
-    :~  [%watch /(scot %uv poll-id)]
-        [%watch /(scot %uv poll-id)/(scot %p our.bowl)]
-    ==
+    ?>  =(src.bol owner.poll)
+    ~|  [%duplicate-poll poll-id]
+    ?<  (~(has by pita) poll-id)
+    ~&  >  [%poll-new %accept poll-id]
+    =/  =wire  /(scot %uv poll-id)
+    ~[[%pass wire %agent [owner %pick] %watch wire]]
+      ::
+      %poll-edit
+    %-  (src-owns poll)
+    `state
     ::
-      %poll-reject
-    `state
       %pick
-    `state
+    =/  poll  (~(got by pita) poll-id)
+    =,  poll
+    ?>  &((my poll) (src-able able) (~(has by opts) pick))
+    =/  new-poll  poll(picks (~(put ju picks) pick src.bol))
+    `state(pita (~(put by pita) poll-id new-poll))
+    ::
       %pick-reject
     `state
       %result
