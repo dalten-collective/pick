@@ -13,25 +13,26 @@
 ::
 :: Manage interstellar activity
 ::
-+$  msg
-  $%  [%poll-new =poll]
-      [%poll-edit =poll]
-      [%pick =poll-id pick=@u]
-      [%pick-reject =poll-id why=?(%invalid %unable %expired)]
-      [%result =poll-id pick=(lest @u)]
-      [%result-ack =poll-id]
-      [%result-reject =poll-id why=?(%invalid %false %running)]
-  ==
+++  msg
+  |%
+  +$  poke
+    $%  [%new-poll =poll]
+        [%pick =poll-id pick=@u]
+    ==
+  +$  fact
+    $%  [%result =poll-id pick=(lest @u)]
+    ==
+  --
 ::
 :: Defining polls
 ::
 +$  poll-id     @uv
 +$  opts        (map @u @t)
-+$  picks       (jug @u ship) :: TODO change to signatures?
-+$  pita        (map poll-id poll)
++$  picks       (jug @u ship)
++$  pita        (map poll-id [host=ship =poll])
 +$  able        (set ship)
-+$  poll        $:  =poll-id  owner=ship  =picks
-                    name=@t   =opts       open=@da    
++$  poll        $:  =poll-id  =picks   :: host=ship
+                    name=@t   =opts    open=@da    
                     stop=@da  =able
                 ==
 --
