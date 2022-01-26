@@ -17,7 +17,7 @@
   |%
   +$  poke
     $%  [%new-poll =poll]
-        [%pick =poll-id pick=@u]
+        [%pick =poll-id pick=@u] :: TODO unify with cmd-pick
     ==
   +$  fact
     $%  [%result =poll-id pick=(lest @u)]

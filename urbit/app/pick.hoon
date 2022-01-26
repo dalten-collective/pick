@@ -64,25 +64,27 @@
       =/  =poll  [(sham cmd eny.bowl) (picks) +.cmd]
       =,  poll
       :_  state(pita (~(put by pita) poll-id [our.bowl poll]))
-      =/  poll-id  (scot %uv poll-id)
-      %-  (lead [%pass /[poll-id]/timer %arvo %b %wait stop])
-      %+  turn  ~(tap in able)
+      =/  knot  (scot %uv poll-id)
+      %-  (lead [%pass /[knot]/timer %arvo %b %wait stop])
+      %+  murn  ~(tap in able)
       |=  =ship
+      ?:  =(ship our.bowl)  ~
+      %-  some
       :*
-        %pass   /[poll-id]/voters/(scot %p ship)
+        %pass   /[knot]/voters/(scot %p ship)
         %agent  [ship %pick]
         %poke   %pick-poke   !>((poke:msg %new-poll poll))
       ==
         ::
         %pick
-      `state
+      (pick-handle poll-id pick)
         ::
         %collate
       `state
         ::
         %delete
       ~&  [%pick %delete poll-id]
-      state(pita (~(del by pita) poll-id))
+      :_  state(pita (~(del by pita) poll-id))
       =/  [host=ship =poll]  ~|(%bad-poll-id (~(got by pita) poll-id))
       =/  =knot  (scot %uv poll-id)
       ?.  =(our.bowl host)
@@ -108,8 +110,24 @@
       (watch-src:hc poll-id)
         ::
         %pick
-      `state
+      (pick-handle poll-id pick)
     ==
+  ::
+  ++  pick-handle
+    |=  [=poll-id pick=@u]
+    ^-  (quip card _state)
+    =/  [host=ship =poll]  ~|(%bad-poll-id (~(got by pita) poll-id))
+    =,  poll
+    ?>  (~(has by opts) pick)
+    ?>  (~(has in able) src.bowl)
+    =.  picks.poll  (~(put ju picks) pick src.bowl)
+    :_  state(pita (~(put by pita) poll-id [host poll]))
+    ?:  =(our.bowl host)  ~
+    :~  :*
+      %pass   /(scot %uv poll-id)
+      %agent  [host %pick]
+      %poke   %pick-poke   !>((poke:msg %pick poll-id pick))
+    ==  ==
   --
 ::
 ++  on-watch
