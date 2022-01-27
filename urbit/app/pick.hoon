@@ -14,6 +14,7 @@
 +$  card  card:agent:gall
 --
 ::
+=<
 %-  agent:dbug
 =|  state-zero
 =*  state  -
@@ -61,7 +62,7 @@
     ?-  -.cmd
         ::
         %create
-      =/  =poll  [(sham cmd eny.bowl) (picks) +.cmd]
+      =/  =poll  [(sham cmd eny.bowl) (tale) +.cmd]
       =,  poll
       :_  state(pita (~(put by pita) poll-id [our.bowl poll]))
       =/  knot  (scot %uv poll-id)
@@ -77,10 +78,11 @@
       ==
         ::
         %pick
-      (pick-handle poll-id pick)
+      (pick-handle poll-id pick (sham cmd eny.bowl))
         ::
-        %collate
+        %force-count
       `state
+      ::(count-votes:hc poll-id)
         ::
         %delete
       ~&  [%pick %delete poll-id]
@@ -110,24 +112,24 @@
       (watch-src:hc poll-id)
         ::
         %pick
-      (pick-handle poll-id pick)
+      (pick-handle poll-id pick tell)
     ==
   ::
   ++  pick-handle
-    |=  [=poll-id pick=@u]
+    |=  [=poll-id =pick =tell]
     ^-  (quip card _state)
     =/  [host=ship =poll]  ~|(%bad-poll-id (~(got by pita) poll-id))
     =,  poll
     ?>  (~(has in able) src.bowl)
-    ?>  (~(has by opts) pick)
-    =.  picks.poll  (~(put ju picks) pick src.bowl)
+    ?>  (~(has in opts) pick)
+    =.  tale.poll  (~(add ja tale) pick tell)
     =.  able.poll  (~(del in able) src.bowl)
     :_  state(pita (~(put by pita) poll-id [host poll]))
     ?:  =(our.bowl host)  ~
     :~  :*
       %pass   /(scot %uv poll-id)
       %agent  [host %pick]
-      %poke   %pick-poke   !>((poke:msg %pick poll-id pick))
+      %poke   %pick-poke   !>((poke:msg %pick poll-id pick tell))
     ==  ==
   --
 ::
@@ -180,13 +182,13 @@
 ++  on-arvo
   |=  [=wire =sign-arvo]
   ^-  (quip card _this)
-  ?.  ?=([@ %timer ~] wire)  (on-arvo:def wire sign-arvo)
+  ?.  ?=([@ %timer ~] wire)          (on-arvo:def wire sign-arvo)
   ?.  ?=([%behn %wake *] sign-arvo)  (on-arvo:def wire sign-arvo)
-  ?^  error.sign-arvo  (on-arvo:def wire sign-arvo)
-  =/  res  (~(get by pita) (slav %uv i.wire))
-  ?~  res  `this
-  ~&  >>  [%count-votes i.wire]
-  `this :: TODO actually count votes lol
+  ?^  error.sign-arvo                (on-arvo:def wire sign-arvo)
+  =/  result  (~(get by pita) (slav %uv i.wire))
+  ?~  result  `this
+  =-  ~&  >>  [%count-votes -]  `this
+  (count-picks tale.poll.u.result)
 ::
 ++  on-peek   on-peek:def
 ++  on-fail   on-fail:def
@@ -199,4 +201,21 @@
   ^-  (list card)
   =/  =knot  (scot %uv poll-id)
   ~[[%pass /[knot] %agent [src.bowl %pick] %watch /[knot]/voters]]
+--
+::
+:: Pure helpers
+::
+|%
+::
+++  count-picks
+  |=  =tale
+  ^-  fate
+  =/  ordered  ((ordered-map @u (list pick)) gte)
+  %-  tap:ordered
+  %-  ~(rep by tale)
+  |=  [[=pick all=(list tell)] acc=(tree [@u (list pick)])]
+  =/  count=@u  (lent all)
+  %^  put:ordered  acc
+    count
+  [pick (fall (get:ordered acc count) ~)]
 --
