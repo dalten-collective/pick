@@ -5,9 +5,9 @@
 :: Manage your polls:
 ::
 +$  cmd
-  $%  [%create name=@t =opts open=@da stop=@da =able]
-      [%pick =poll-id pick=@u]
-      [%collate =poll-id]
+  $%  [%create name=@t =(set pick) open=@da stop=@da =able]
+      [%pick =poll-id =pick]
+      [%force-count =poll-id]
       [%delete =poll-id]
   ==
 ::
@@ -17,22 +17,24 @@
   |%
   +$  poke
     $%  [%new-poll =poll]
-        [%pick =poll-id pick=@u] :: TODO unify with cmd-pick
+        [%pick =poll-id =pick =tell]
     ==
   +$  fact
-    $%  [%result =poll-id pick=(lest @u)]
+    $%  [%result =tale =fate]
     ==
   --
 ::
 :: Defining polls
 ::
 +$  poll-id     @uv
-+$  opts        (map @u @t)
-+$  picks       (jug @u ship)
++$  tell        @uv  :: hash for verification
++$  pick        @t
 +$  pita        (map poll-id [host=ship =poll])
 +$  able        (set ship)
-+$  poll        $:  =poll-id  =picks   :: host=ship
-                    name=@t   =opts    open=@da    
++$  tale        (jar pick tell)
++$  fate        (list [@u (list pick)])
++$  poll        $:  =poll-id  =tale
+                    name=@t   opts=(set pick)    open=@da    
                     stop=@da  =able
                 ==
 --
