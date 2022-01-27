@@ -118,9 +118,10 @@
     ^-  (quip card _state)
     =/  [host=ship =poll]  ~|(%bad-poll-id (~(got by pita) poll-id))
     =,  poll
-    ?>  (~(has by opts) pick)
     ?>  (~(has in able) src.bowl)
+    ?>  (~(has by opts) pick)
     =.  picks.poll  (~(put ju picks) pick src.bowl)
+    =.  able.poll  (~(del in able) src.bowl)
     :_  state(pita (~(put by pita) poll-id [host poll]))
     ?:  =(our.bowl host)  ~
     :~  :*
@@ -181,11 +182,11 @@
   ^-  (quip card _this)
   ?.  ?=([@ %timer ~] wire)  (on-arvo:def wire sign-arvo)
   ?.  ?=([%behn %wake *] sign-arvo)  (on-arvo:def wire sign-arvo)
-  ?^  error.+.sign-arvo  (on-arvo:def wire sign-arvo)
+  ?^  error.sign-arvo  (on-arvo:def wire sign-arvo)
   =/  res  (~(get by pita) (slav %uv i.wire))
   ?~  res  `this
-  `this
-  :: TODO actually count votes lol
+  ~&  >>  [%count-votes i.wire]
+  `this :: TODO actually count votes lol
 ::
 ++  on-peek   on-peek:def
 ++  on-fail   on-fail:def
