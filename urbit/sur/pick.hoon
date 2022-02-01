@@ -17,7 +17,7 @@
   |%
   +$  poke
     $%  [%new-poll =poll]
-        [%pick =poll-id =pick =tell]
+        [%new-pick =poll-id =pick =seal]
     ==
   +$  fact
     $%  [%result =tale =fate]
@@ -27,14 +27,14 @@
 :: Defining polls
 ::
 +$  poll-id     @uv
-+$  tell        @uv  :: hash for verification
 +$  pick        @t
++$  seal        @ux
 +$  pita        (map poll-id [host=ship =poll])
 +$  able        (set ship)
-+$  tale        (jar pick tell)
++$  tale        (jug pick [=ship =seal])
 +$  fate        (list [@u (list pick)])
-+$  poll        $:  =poll-id  =tale
-                    name=@t   opts=(set pick)    open=@da    
++$  poll        $:  =poll-id  =tale  fate=(unit fate)
+                    name=@t   opts=(set pick)    open=@da
                     stop=@da  =able
                 ==
 --
