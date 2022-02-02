@@ -42,19 +42,18 @@
   ~&  >  [%pick %poke]
   |=  [=mark =vase]
   ^-  (quip card _this)
-  |^
-  =^  cards  state
-    ?+  mark  (on-poke:def mark vase)
-        ::
-        %cmd
-      ?>  =(src.bowl our.bowl)
-      (cmd-handle !<(cmd vase))
-        ::
-        %pick-poke
-      ?<  =(src.bowl our.bowl)
-      (poke-handle !<(poke:msg vase))
-    ==
-  [cards this]
+  |^  =^  cards  state
+      ?+  mark  (on-poke:def mark vase)
+          ::
+          %cmd
+        ?>  =(src.bowl our.bowl)
+        (cmd-handle !<(cmd vase))
+          ::
+          %pick-poke
+        ?<  =(src.bowl our.bowl)
+        (poke-handle !<(poke:msg vase))
+      ==
+      [cards this]
   ::
   ++  cmd-handle
     |=  =cmd
@@ -63,9 +62,9 @@
     ?-  -.cmd
         ::
         %create
-      =/  =poll  [(sham cmd eny.bowl) (tale) ~ +.cmd]
+      =/  =poll  [(sham cmd eny.bowl) our.bowl (tale) ~ +.cmd]
       =,  poll
-      :_  state(pita (~(put by pita) poll-id [our.bowl poll]))
+      :_  state(pita (~(put by pita) poll-id poll))
       =/  =knot  (scot %uv poll-id)
       %-  (lead [%pass /[knot]/timer %arvo %b %wait stop])
       %+  murn  ~(tap in able)
@@ -80,7 +79,7 @@
         ::
         %pick
       ~&  >  [%pick %cmd-pick]
-      (pick-handle poll-id pick (sign:as:privkey:hc pick))
+      (pick-handle poll-id pick (sign:as:privkey:hc (jam [poll-id pick])))
         ::
         %force-count
       `state
@@ -88,10 +87,10 @@
         %delete
       ~&  [%pick %delete poll-id]
       :_  state(pita (~(del by pita) poll-id))
-      =/  [host=ship =poll]  ~|(%bad-poll-id (~(got by pita) poll-id))
+      =/  =poll  ~|(%bad-poll-id (~(got by pita) poll-id))
       =/  =knot  (scot %uv poll-id)
-      ?.  =(our.bowl host)
-        ~[[%pass /[knot] %agent [host %pick] %leave ~]]
+      ?.  =(our.bowl host.poll)
+        ~[[%pass /[knot]/voters %agent [host.poll %pick] %leave ~]]
       :~
         [%give %kick ~[/[knot]/voters] ~]
         [%pass /[knot]/timer %arvo %b %rest stop.poll]
@@ -105,38 +104,44 @@
     ?-  -.poke
         ::
         %new-poll
+      =.  host.poll.poke  src.bowl
       =,  poll
-      :_  state(pita (~(put by pita) poll-id [src.bowl poll]))
+      :_  state(pita (~(put by pita) poll-id poll))
       ~|  [%already-has poll-id]
       ?<  (~(has by pita) poll-id)
       ~&  >  [%pick %new-poll %accept poll-id]
       (watch-src:hc poll-id)
         ::
         %new-pick
-      %^  pick-handle  poll-id
-        ~|(%invalid-signature (need (sure:as:(pubkey:hc src.bowl) seal)))
-      seal
+      =-  (pick-handle poll-id pick seal)
+      ~|  %invalid-seal
+      ;;  [=poll-id =pick]
+      ~|  %invalid-signature
+      (cue (need (sure:as:(pubkey:hc src.bowl) seal)))
     ==
   ::
   ++  pick-handle
     |=  [=poll-id =pick =seal]
     ^-  (quip card _state)
-    =/  [host=ship =poll]  ~|(%bad-poll-id (~(got by pita) poll-id))
+    =/  =poll  ~|(%bad-poll-id (~(got by pita) poll-id))
     =,  poll
     ?>  (~(has in able) src.bowl)
     ?>  (~(has in opts) pick)
-    =.  tale.poll  (~(put ju tale) pick [src.bowl seal])
-    =.  able.poll  (~(del in able) src.bowl)
-    :_  state(pita (~(put by pita) poll-id [host poll]))
-    ?:  =(our.bowl host)
-      ?^  able  ~
-      (result-card /(scot %uv poll-id)/voters tale)
-    :~  :*
-      %pass   /(scot %uv poll-id)
-      %agent  [host %pick]
-      %poke   %pick-poke   !>((poke:msg %new-pick poll-id pick seal))
-    ==  ==
-  --
+    =^  c1=(list card)  poll
+      =.  tale.poll  (~(put ju tale) pick [src.bowl seal])
+      =.  able.poll  (~(del in able) src.bowl)
+      :_  poll
+      ?:  =(our.bowl host)  ~
+      :~  :*
+        %pass  /(scot %uv poll-id)  %agent  [host %pick]
+        %poke  pick-poke+!>((poke:msg %new-pick seal))
+      ==  ==
+    =^  c2=(list card)  pita
+      ?.  &(=(able ~) =(our.bowl host))
+        `(~(put by pita) poll-id poll)
+      (record-fate:hc poll)
+    [(weld c1 c2) state]
+--
 ::
 ++  on-watch
   |=  =path
@@ -144,7 +149,7 @@
   ^-  (quip card _this)
   ?>  ?=([@ %voters ~] path)
   =/  =poll-id  (slav %uv i.path)
-  =/  =poll  ~|([%invalid-poll poll-id] poll:(~(got by pita) poll-id))
+  =/  =poll  ~|([%invalid-poll poll-id] (~(got by pita) poll-id))
   ~|  [%src-not-able src.bowl able.poll]
   ?>  (~(has in able.poll) src.bowl)
   `this
@@ -156,23 +161,22 @@
   ^-  (quip card _this)
   ?.  ?=([@ ~] wire)  (on-agent:def wire sign)
   =/  =poll-id  (slav %uv i.wire)
-  |^
-  =^  cards  state
-    ?+  -.sign  `state
-        ::
-        %fact
-      ?.  ?=(%pick-fact p.cage.sign)  `state
-      (fact-handle !<(fact:msg q.cage.sign))
-        ::
-        %kick
-      :_  state
-      (watch-src:hc poll-id)
-        ::
-        %watch-ack
-      ?~  p.sign  `state
-      `state(pita (~(del by pita) poll-id)) :: TODO display error message
-    ==
-  [cards this]
+  |^  =^  cards  state
+        ?+  -.sign  `state
+            ::
+            %fact
+          ?.  ?=(%pick-fact p.cage.sign)  `state
+          (fact-handle !<(fact:msg q.cage.sign))
+            ::
+            %kick
+          :_  state
+          (watch-src:hc poll-id)
+            ::
+            %watch-ack
+          ?~  p.sign  `state
+          `state(pita (~(del by pita) poll-id)) :: TODO display error message
+        ==
+      [cards this]
   ::
   ++  fact-handle
     |=  =fact:msg
@@ -181,12 +185,12 @@
     ?-  -.fact
         ::
         %result
-      ?.  (verify-tale:hc tale) :: TODO check that all ships are able
+      ?.  &((verify-tale:hc tale) =(fate (tally tale))) :: TODO check that all ships are able
         ~&  %false-tale  `state
-      =/  result  (~(got by pita) poll-id)
-      =.  tale.poll.result  tale
-      =.  fate.poll.result  (some fate)
-      `state(pita (~(put by pita) poll-id result))
+      =/  =poll  (~(got by pita) poll-id)
+      =.  tale.poll  tale
+      =.  fate.poll  (some fate)
+      `state(pita (~(put by pita) poll-id poll))
     ==
   --
 ::
@@ -196,10 +200,10 @@
   ?.  ?=([@ %timer ~] wire)          (on-arvo:def wire sign-arvo)
   ?.  ?=([%behn %wake *] sign-arvo)  (on-arvo:def wire sign-arvo)
   ?^  error.sign-arvo                (on-arvo:def wire sign-arvo)
-  =/  result  (~(get by pita) (slav %uv i.wire))
-  ?~  result  `this
-  :_  this
-  (result-card /[i.wire]/voters tale.poll.u.result)
+  =/  poll  (~(get by pita) (slav %uv i.wire))
+  ?~  poll  `this
+  =^  cards  pita  (record-fate:hc u.poll)
+  [cards this]
 ::
 ++  on-peek   on-peek:def
 ++  on-fail   on-fail:def
@@ -226,8 +230,7 @@
   ^-  acru:ames
   =/  their=knot  (scot %p ship)
   %-  com:nu:crub:crypto
-  =<  pass
-  .^([life=@ud =pass (unit)] j+/[our]/deed/[now]/[their]/(life-of their))
+  pass:.^([life=@ud =pass (unit)] j+/[our]/deed/[now]/[their]/(life-of their))
 ::
 ++  privkey
   ^-  acru:ames
@@ -242,18 +245,29 @@
   %-  ~(all in set)
   |=  [=ship =seal]
   ?=  ^  (sure:as:(pubkey ship) seal)
+::
+++  record-fate
+  |=  [=poll]
+  ^-  (quip card ^pita)
+  =,  poll
+  =/  =^fate  (tally tale)
+  =.  fate.poll  (some fate)
+  =/  =knot  (scot %uv poll-id)
+  :_  (~(put by pita) poll-id poll)
+  :~
+    [%give %fact ~[/[knot]/voters] pick-fact+!>((fact:msg %result tale fate))]
+    [%pass /[knot]/timer %arvo %b %rest stop]
+  ==
 --
 ::
 :: Pure helpers
 ::
 |%
 ::
-++  result-card
-  |=  [=path =tale]
-  ^-  (list card)
+++  tally
+  |=  =tale
+  ^-  fate
   =/  ordered  ((ordered-map @u (list pick)) gte)
-  =;  =fate
-    ~[[%give %fact ~[path] %pick-fact !>((fact:msg %result tale fate))]]
   %-  tap:ordered
   %-  ~(rep by tale)
   |=  [[=pick all=(set *)] acc=(tree [@u (list pick)])]
