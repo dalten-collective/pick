@@ -31,7 +31,7 @@
 +$  seal        @ux
 +$  pita        (map poll-id poll)
 +$  able        (set ship)
-+$  tale        (jug pick [=ship =seal])
++$  tale        (jar pick [=ship =seal])
 +$  fate        (list [@u (list pick)])
 +$  poll        $:  =poll-id  host=ship  =tale  fate=(unit fate)
                     name=@t   opts=(set pick)    open=@da

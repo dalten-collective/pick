@@ -128,7 +128,7 @@
     ?>  (~(has in able) src.bowl)
     ?>  (~(has in opts) pick)
     =^  c1=(list card)  poll
-      =.  tale.poll  (~(put ju tale) pick [src.bowl seal])
+      =.  tale.poll  (~(add ja tale) pick [src.bowl seal])
       =.  able.poll  (~(del in able) src.bowl)
       :_  poll
       ?:  =(our.bowl host)  ~
@@ -174,7 +174,7 @@
             ::
             %watch-ack
           ?~  p.sign  `state
-          `state(pita (~(del by pita) poll-id)) :: TODO display error message
+          `state(pita (~(del by pita) poll-id))
         ==
       [cards this]
   ::
@@ -185,13 +185,32 @@
     ?-  -.fact
         ::
         %result
-      ?.  &((verify-tale:hc tale) =(fate (tally tale))) :: TODO check that all ships are able
-        ~&  %false-tale  `state
+      =/  voters  (tellers tale)
       =/  =poll  (~(got by pita) poll-id)
+      =/  all-able  (weld (tellers tale.poll) ~(tap in able.poll))
+      ?.  &((verify-tale:hc tale) =(fate (tally tale)) (all-in voters all-able))
+        `state
       =.  tale.poll  tale
       =.  fate.poll  (some fate)
+      =.  able.poll  ~
       `state(pita (~(put by pita) poll-id poll))
     ==
+  ::
+  ++  tellers
+    |=  =tale
+    ^-  (list ship)
+    (turn `(list [ship seal])`(zing ~(val by tale)) head)
+  ::
+  ++  all-in
+    |=  [xs=(list *) ys=(list *)]
+    ^-  ?
+    =-  ?=(^ -)
+    %+  roll  xs
+    |:  [x=(*) remaining-ys=`(unit _ys)`(some ys)]
+    %+  biff  remaining-ys
+    |=  =_ys
+    %+  bind  (find ~[x] ys)
+    |=(@ (oust [+< 1] ys))
   --
 ::
 ++  on-arvo
@@ -241,8 +260,8 @@
   |=  =tale
   ^-  ?
   %-  ~(all by tale)
-  |=  set=(set [ship seal])
-  %-  ~(all in set)
+  |=  xs=(list [ship seal])
+  %+  levy  xs
   |=  [=ship =seal]
   ?=  ^  (sure:as:(pubkey ship) seal)
 ::
@@ -270,8 +289,8 @@
   =/  ordered  ((ordered-map @u (list pick)) gte)
   %-  tap:ordered
   %-  ~(rep by tale)
-  |=  [[=pick all=(set *)] acc=(tree [@u (list pick)])]
-  =/  count  ~(wyt in all)
+  |=  [[=pick all=(list *)] acc=(tree [@u (list pick)])]
+  =/  count  (lent all)
   %^  put:ordered  acc
     count
   [pick (fall (get:ordered acc count) ~)]
