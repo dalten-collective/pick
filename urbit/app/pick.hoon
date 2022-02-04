@@ -36,7 +36,9 @@
 ::
 ++  on-load
   ~&  >  [%pick %on-load]
-  on-load:def
+  |=  =vase
+  ^-  (quip card _this)
+  `this(state !<(versioned-state vase))
 ::
 ++  on-poke
   ~&  >  [%pick %poke]
