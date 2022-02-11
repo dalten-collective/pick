@@ -1,0 +1,9 @@
+:~  title+'pick'
+    info+'picky picky'
+    color+0x36.3636
+    site+/apps/pick
+    base+'pick'
+    version+[0 0 1]
+    website+'https://dalten.org/'
+    license+'Get Rekt'
+==
