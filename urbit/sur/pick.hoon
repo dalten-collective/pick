@@ -7,7 +7,7 @@
 :: Manage your polls:
 ::
 +$  cmd
-  $%  [%create name=@t =(set pick) open=@da stop=@dr =able]
+  $%  [%create name=@t opts=(set pick) open=@da stop=@dr =able]
       [%pick =poll-id =pick]
       [%force-count =poll-id]
       [%delete =poll-id]
@@ -19,7 +19,7 @@
   |%
   +$  poke
     $%  [%new-poll =poll]
-        [%new-pick =seal]
+        [%new-pick =poll-id =voat]
     ==
   +$  fact
     $%  [%result =tale =fate]
@@ -41,15 +41,16 @@
 ::  - able > specifies the users allowed to participate
 ::  - pkey > the public keys of all the able, per the host
 +$  poll        $:  =poll-id  host=ship  =tale   =fate
-                    name=@t  open=@da  stop=@dr  =able
-                    =pkey
+                    name=@t   opts=(set @t) 
+                    open=@da  stop=@dr  =pkey
                 ==
 ::
 +$  able        (set ship)
 +$  poll-id     @uv
 +$  pick        @t
-+$  fate        (jar pick tale)
++$  fate        (jar pick voat)
 +$  tale        (list voat)
++$  pkey        (set @uwpublickey)
 +$  voat        [=pick =slip]
 ::
 ::  state objects
