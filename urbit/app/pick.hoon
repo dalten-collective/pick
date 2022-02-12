@@ -8,7 +8,7 @@
 ::
 +$  state-zero
     $:  %0
-        =pita
+        state:zero
     ==
 ::
 +$  card  card:agent:gall
@@ -47,7 +47,7 @@
   |^  =^  cards  state
       ?+  mark  (on-poke:def mark vase)
           ::
-          %cmd
+          %pick-cmd
         ?>  =(src.bowl our.bowl)
         (cmd-handle !<(cmd vase))
           ::
@@ -61,14 +61,20 @@
     |=  =cmd
     ^-  (quip card _state)
     =,  cmd
-    ?-  -.cmd
-        ::
+    ?-    -.cmd
+    :: 
         %create
-      =/  =poll  [(sham cmd eny.bowl) our.bowl (tale) ~ +.cmd]
+      ::  check if you know everyone
+      ?~  gerry=(mander able)
+        ~&  >  "You should get to know {u.gerry}"
+        `state
+
+      ?.  (~(has in ))
+      =/  =poll  [(sham cmd eny.bowl) our.bowl *tale *fate +.cmd]
       =,  poll
-      :_  state(pita (~(put by pita) poll-id poll))
+      :_  state(peck (~(put by peck) poll-id poll))
       =/  =knot  (scot %uv poll-id)
-      %-  (lead [%pass /[knot]/timer %arvo %b %wait stop])
+      %-  (lead [%pass /[knot]/timer %arvo %b %wait (add open stop)])
       %+  murn  ~(tap in able)
       |=  =ship
       ?:  =(ship our.bowl)  ~
@@ -164,7 +170,7 @@
   ?.  ?=([@ ~] wire)  (on-agent:def wire sign)
   =/  =poll-id  (slav %uv i.wire)
   |^  =^  cards  state
-        ?+  -.sign  `state
+        ?-  -.sign
             ::
             %fact
           ?.  ?=(%pick-fact p.cage.sign)  `state
@@ -177,6 +183,10 @@
             %watch-ack
           ?~  p.sign  `state
           `state(pita (~(del by pita) poll-id))
+            ::
+            %poke-ack
+          ~&  sign
+          `state
         ==
       [cards this]
   ::
@@ -219,7 +229,7 @@
   |=  [=wire =sign-arvo]
   ^-  (quip card _this)
   ?.  ?=([@ %timer ~] wire)          (on-arvo:def wire sign-arvo)
-  ?.  ?=([%behn %wake *] sign-arvo)  (on-arvo:def wire sign-arvo)
+  ?.  ?=([%behn %wake *] sign-arvo)  ~&  >  sign-arvo  (on-arvo:def wire sign-arvo)
   ?^  error.sign-arvo                (on-arvo:def wire sign-arvo)
   =/  poll  (~(get by pita) (slav %uv i.wire))
   ?~  poll  `this
@@ -296,4 +306,34 @@
   %^  put:ordered  acc
     count
   [pick (fall (get:ordered acc count) ~)]
+::
+++  mander
+  |=  sip=(set ship)
+  ^-  (unit (set @uwpublickey))
+  =/  =evil  =-  (evil .^(* %ax -))
+             /(scot %p our.bol)//(scot %da now.bol)/peers
+  =-  ?~  -  ~  ?.  =(~(wyt in sip) ~(wyt in -))  ~  `-
+  %-  ~(rep in sip)
+  |=  [s=ship o=(set @uwpublickey)]
+  ?.  (~(has in evil) s)  o
+  =/  =rotn  (~(got by evil) s)
+  ?.  ?=([%known [@ @ pk=@uwpublickey @] *] rotn)  o
+  (~(put in o) pk.rotn)
+
+
+
+
+  ?.  ?&  =(~ (~(dif in sip) ~(key by evil)))
+          %-  ~(all in sip)
+          |=(s=ship =(%known -:(~(got by evil) s)))
+      ==
+    ~
+  :-  ~   %-  ~(rep in sip)
+  |=  [s=ship o=(set @uwpublickey)]
+  =/  =rotn
+    =-  (rotn .^(* %ax -))
+    /(scot %p our.bol)//(scot %da now.bol)/peers/(scot %p s)
+  %-  ~(put in o)
+  pk:([%known [@ @ pk=@uwpublickey @] *] rotn)
+
 --
