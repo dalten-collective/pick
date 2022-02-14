@@ -50,7 +50,7 @@
 +$  pick        @t
 +$  fate        (jar pick voat)
 +$  tale        (list voat)
-+$  pkey        (set @uwpublickey)
++$  pkey        (set @udpoint)
 +$  voat        [=pick =slip]
 ::
 ::  state objects

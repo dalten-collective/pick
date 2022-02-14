@@ -64,13 +64,12 @@
     :: 
         %create
       ::  check if you know everyone
-      ?~  g=(gerrymander:hc able)
-        ~&  >>>  [%pick %fail %voter-ids %missing]
-        `state
+      ~|  [%pick %fail %voter-ids %missing]
+      =+  g=(~(rep in able) gerrymander:hc)
+      ?>  =(~(wyt in `(set @)`g) ~(wyt in `(set @)`able))
       =/  =poll
-        :*  (sham cmd eny.bowl)  our.bowl  *tale  *fate
-            name  opts
-            open  stop  u.g
+        :*  (shaz (jam cmd))  our.bowl  
+           *tale  *fate  name  opts  open  stop  g
         ==
       =,  poll
       :_  state(peck (~(put by peck) poll-id poll))
@@ -88,18 +87,22 @@
         ::
         %pick
       ~&  >  [%pick %cmd-pick]
-      ?~  lyt=(lyfe-of our.bowl)    !!
-      ?.  (~(has by peck) poll-id)  !!
+      ?~  lyt=(lyfe-of:hc our.bowl)    !!
+      ?.  (~(has by peck) poll-id)     !!
       =/  pol=poll  (~(got by peck) poll-id)
-      =/  ful=(set @udpoint)
-        %-  ~(rep in pkey.pol)
-        |=  [inn=@uwpublickey out=(set @udpoint)]
-        (~(put in out) `@udpoint`inn)
       ::
       =/  blu=slip
-        %-  sign:raw:ring
-        [pick `poll-id ful (keys-of:hc our.bowl u.lyt) keys-my:hc eny.bowl]
-      ::
+        ^-  slip  %-  sign:raw:ring
+        :*  (shaz (jam pick))
+            [~ poll-id]
+            pkey.pol
+            (keys-of:hc our.bowl (scot %ud u.lyt))
+            keys-my:hc
+            eny.bowl
+        ==
+      ~&  >>>  [%verified-yn (verify:raw:ring (shaz (jam pick)) `poll-id pkey.pol blu)]
+      ?.  (verify:raw:ring (shaz (jam pick)) `poll-id pkey.pol blu)
+        `state
       (pick-handle poll-id [pick blu])
         ::
         %force-count
@@ -110,8 +113,8 @@
       :_  state(peck (~(del by peck) poll-id))
       =/  =poll  ~|(%bad-poll-id (~(got by peck) poll-id))
       =/  pid=knot  (scot %uv poll-id)
-      ?~  lyt=(lyfe-of our.bowl)  ~
-      =/  kip=knot  (scot %ud (keys-of our.bowl u.lyt))
+      ?~  lyt=(lyfe-of:hc our.bowl)  ~
+      =/  kip=knot  (scot %ud (keys-of:hc our.bowl u.lyt))
       ?.  =(our.bowl host.poll)
         [%pass /[pid]/voters/[kip] %agent [host.poll %pick] %leave ~]~
       :-  [%pass /[pid]/timer %arvo %b %rest (add open.poll stop.poll)]
@@ -120,9 +123,9 @@
         ::
         ^-  (list path)
         %-  ~(rep in pkey.poll)
-        |=  [in=@uwpublickey out=(list path)]
+        |=  [in=@udpoint out=(list path)]
         :_  out
-        `path`/[pid]/voters/(scot %uwpublickey in)
+        `path`/[pid]/voters/(scot %udpoint in)
         ::
         ~
       ==  ==
@@ -152,7 +155,7 @@
     ^-  (quip card _state)
     =/  =poll  ~|(%bad-poll-id (~(got by peck) i))
     ?>  (~(has in opts.poll) pick.p)
-    ::?>  (~(hist test-it:hc poll) voat)
+    ?<  (~(hist test-it:hc poll) p)
     ?>  (gth (add open.poll stop.poll) now.bowl)
     ?.   =(our.bowl host.poll)
       :_  state(cast (~(put by cast) i p))
@@ -165,27 +168,28 @@
         fate  (~(add ja fate.poll) pick.p p)
         tale  [p tale.poll]
       ==
-    =/  piid=knot  (scot %uv i)
     :_  state(peck (~(put by peck) i poll))
-    (~(clos test-it:hc poll) piid)
+    (~(clos test-it:hc poll) (scot %uv i))
 --
 ::
 ++  on-watch
   |=  =path
-  ~&  >  [%pick %watch src.bowl path]
   ^-  (quip card _this)
   ::  intelligible?
   ?>  ?=([@ %voters @ ~] path)
   ::  appropriate?
-  =/  =poll-id  (slav %uv i.path)
-  =/  pub=@uwpublickey  (slav %uwpublickey i.t.t.path)
-  =/  =poll
-    ~|([%invalid-poll poll-id] (~(got by peck) poll-id))
+  =/  pid=@uv  (slav %uv i.path)
+  =/  pub=@udpoint  (slav %ud i.t.t.path)
+  ?~  poll=(~(get by peck) pid)
+    ~|([%invalid-poll pid] !!)
   ~|  [%src-not-able src.bowl]
-  ?>  (~(has in pkey.poll) pub)
+  ?>  (~(has in pkey.u.poll) pub)
   ::  allowed and updated
   :_  this
-  [%give %fact ~ pick-fact+!>((fact:msg %result tale.poll fate.poll))]~
+  :~  :*
+    %give  %fact  ~
+    pick-fact+!>((fact:msg %result tale.u.poll fate.u.poll))
+  ==  ==
 ::
 ++  on-leave  on-leave:def
 ::
@@ -193,51 +197,56 @@
   |=  [=wire =sign:agent:gall]
   ^-  (quip card _this)
   ?.  ?=([@ ~] wire)  (on-agent:def wire sign)
-  =/  =poll-id  (slav %uv i.wire)
+  =/  pid=poll-id  (slav %uv i.wire)
+  ::?.  (~(has in peck) pid)
+  ::  `this
   |^  =^  cards  state
         ?-  -.sign
             ::
             %fact
           ?.  ?=(%pick-fact p.cage.sign)  `state
-          (fact-handle !<(fact:msg q.cage.sign))
+          (fact-handle !<(fact:msg q.cage.sign) pid)
             ::
             %kick
+          ?.  (~(has by peck) pid)  `state
           :_  state
-          (hear-em:hc poll-id)
+          (hear-em:hc pid)
             ::
             %watch-ack
           ?~  p.sign  `state
-          ?.  (~(has by peck) poll-id)
+          ?.  (~(has by peck) pid)
             `state
           =.  lies
-            (~(put by lies) poll-id (~(got by peck) poll-id))
-          =.  peck  (~(del by peck) poll-id)
+            (~(put by lies) pid (~(got by peck) pid))
+          =.  peck  (~(del by peck) pid)
           `state
             ::
             %poke-ack
-          ~&  sign
           `state
         ==
       [cards this]
   ::
   ++  fact-handle
-    |=  =fact:msg
+    |=  [=fact:msg pid=poll-id]
     ^-  (quip card _state)
     =,  fact
     ?-  -.fact
         ::
         %result
-      =/  =poll  (~(got by peck) poll-id)
-      ?.  (levy tale ~(hist test-it:hc poll))
+      =/  =poll  (~(got by peck) pid)
+      ?:  &(?=(~ tale) ?=(~ fate))
+        `state(peck (~(put by peck) pid poll))
+      ?:  (levy tale ~(hist test-it:hc poll))
         ~&  >>>  [%pick %detects %fraud]
+        ~&  >>>  [%result %lie]
         :-  ~
         %=  state
-          peck  (~(del by peck) poll-id)
-          lies  (~(put by lies) poll-id poll)
+          peck  (~(del by peck) pid)
+          lies  (~(put by lies) pid poll)
         ==
       =.  tale.poll  tale
       =.  fate.poll  fate
-      `state(peck (~(put by peck) poll-id poll))
+      `state(peck (~(put by peck) pid poll))
     ==
   ::
   --
@@ -246,7 +255,7 @@
   |=  [=wire =sign-arvo]
   ^-  (quip card _this)
   ?.  ?=([@ %timer ~] wire)          (on-arvo:def wire sign-arvo)
-  ?.  ?=([%behn %wake *] sign-arvo)  ~&  >  sign-arvo  (on-arvo:def wire sign-arvo)
+  ?.  ?=([%behn %wake *] sign-arvo)  (on-arvo:def wire sign-arvo)
   ?^  error.sign-arvo                (on-arvo:def wire sign-arvo)
   ::
   ?~  poll=(~(get by peck) (slav %uv i.wire))  `this
@@ -270,14 +279,16 @@
 ::
 ++  keys-of
   |=  [dem=@p wen=knot]
-  pass:.^([@ =pass *] j+/[our]/deed/[now]/(scot %p dem)/[wen])
+  =/  a=[@ =pass *]
+    .^([@ =pass *] j+/[our]/deed/[now]/(scot %p dem)/[wen])
+  +:(get-public-key-from-pass:detail:ring pass.a)
 ::
 ++  hear-em
   |=  =poll-id
   ^-  (list card)
   ?~  lyt=(lyfe-of our.bowl)  !!
   =/  pid=knot  (scot %uv poll-id)
-  =/  kip=knot  (scot %ud (keys-of our.bowl u.lyt))
+  =/  kip=knot  (scot %ud (keys-of our.bowl (scot %ud u.lyt)))
   :~  :*  
     %pass   /[pid]
     %agent  [src.bowl %pick]
@@ -285,36 +296,40 @@
   ==  ==
 ::
 ++  keys-my
-  =-  .^(@ j+/[our]/vein/[now]/[-])
-  (scot %ud .^(@ud j+/[our]/life/[now]/[our]))
+  %-  seed-to-private-key-scalar:detail:ring
+  =/  a=^ring
+    =-  .^(@ j+/[our]/vein/[now]/(scot %ud -))
+    .^(@ud j+/[our]/life/[now]/[our])
+  +:(get-private-key-from-ring:detail:ring a)
 ::
 ++  test-it
   |_  pol=poll
   ++  hist
   |=  rec=voat
   ^-  ?
-  %.y
-  ::|((dupe rec) (suss rec))
+  ~&  [%dupie (dupe rec) %sussy (suss rec)]
+  |((dupe rec) (suss rec))
   ++  dupe
     |=  inn=voat
     ?~  new=y.slip.inn  %.y
+    ?:  =(~ tale.pol)
+      %.n
     %+  levy  tale.pol
     |=  i=voat
     ?~  old=y.slip.i  %.y
-    ?!(=(u.new u.old))
+    =(u.new u.old)
   ++  suss
     |=  inn=voat
     :: maybe this should cycle through every time to check all the votes?
-    =-  !(verify:raw:ring [pick.inn `poll-id.pol - slip.inn])
-    %-  ~(rep in pkey.pol)
-    |=([i=@uwpublickey s=(set @udpoint)] (~(put in s) `@udpoint`i))
+    ~&  >>>  [%verified-yn (verify:raw:ring (shaz (jam pick.inn)) `poll-id.pol pkey.pol slip.inn)]
+    !(verify:raw:ring (shaz (jam pick.inn)) `poll-id.pol pkey.pol slip.inn)
   ++  dipp
     |=  pid=knot
     ^-  (list card)
     %-  ~(rep in pkey.pol)
-    |=  [in=@uwpublickey out=(list card)]
+    |=  [in=@udpoint out=(list card)]
     :_  out
-    [%give %kick ~[/[pid]/voters/(scot %uwpublickey in)] ~]
+    [%give %kick ~[/[pid]/voters/(scot %udpoint in)] ~]
   ++  clos
     |=  pid=knot
     ^-  (list card)
@@ -322,11 +337,11 @@
       %give  %fact
       ::
       %-  ~(rep in pkey.pol)
-      |=  [in=@uwpublickey out=(list path)]
+      |=  [in=@udpoint out=(list path)]
       :_  out
-      /[pid]/voters/(scot %uwpublickey in)
+      /[pid]/voters/(scot %udpoint in)
       ::
-      pick-fact+!>((fact:msg %result tale.poll fate.poll))
+      pick-fact+!>((fact:msg %result tale.pol fate.pol))
     ==  ==
   --
 ::
@@ -339,15 +354,10 @@
   %+  welp  `(list card)`(~(clos test-it poll) knot)
   `(list card)`(~(dipp test-it poll) knot)
 ++  gerrymander
-  |=  sip=(set ship)
-  ^-  (unit (set @uwpublickey))
-  =/  known=(set @uwpublickey)
-    %-  ~(rep in sip)
-    |=  [s=ship o=(set @uwpublickey)]
-    ?~  lyt=(lyfe-of s)  o
-    (~(put in o) (keys-of s u.lyt))
-  ?~  known  ~
-  ?.  =(~(wyt in `(set @)`sip) ~(wyt in `(set @)`known))
-    ~
-  `known
+  |=  [s=ship o=(set @udpoint)]
+  ^+  o
+  ~|  %not-crub-pubkey
+  ?~  lyt=(lyfe-of s)  o
+  %-  ~(put in o)
+  (keys-of s u.lyt)
 --
