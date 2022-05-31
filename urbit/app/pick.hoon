@@ -68,13 +68,16 @@
       =+  g=(~(rep in able) gerrymander:hc)
       ?>  =(~(wyt in `(set @)`g) ~(wyt in `(set @)`able))
       =/  =poll
-        :*  (shaz (jam cmd))  our.bowl  
-           *tale  *fate  name  opts  open  stop  g
-        ==
+        :+  (shaz (jam cmd))  our.bowl
+        [*tale  *fate  name  opts  open  stop  g  able]
       =,  poll
+        ::
       :_  state(peck (~(put by peck) poll-id poll))
       =/  =knot  (scot %uv poll-id)
-      %-  (lead [%pass /[knot]/timer %arvo %b %wait (add open stop)])
+      %+  welp
+        :~  (json-me:hc [%create poll-id.poll poll])
+            [%pass /[knot]/timer %arvo %b %wait (add open stop)]
+        ==
       %+  murn  ~(tap in able)
       |=  =ship
       ?:  =(ship our.bowl)  ~
@@ -117,7 +120,8 @@
       =/  kip=knot  (scot %ud (keys-of:hc our.bowl u.lyt))
       ?.  =(our.bowl host.poll)
         [%pass /[pid]/voters/[kip] %agent [host.poll %pick] %leave ~]~
-      :-  [%pass /[pid]/timer %arvo %b %rest (add open.poll stop.poll)]
+      :+  (json-me:hc [%delete poll-id name.poll])
+        [%pass /[pid]/timer %arvo %b %rest (add open.poll stop.poll)]
       :~  :*
         %give  %kick
         ::
@@ -159,9 +163,9 @@
     ?>  (gth (add open.poll stop.poll) now.bowl)
     ?.   =(our.bowl host.poll)
       :_  state(cast (~(put by cast) i p))
-      :~  :*
-        %pass  /(scot %uv i)  %agent  [host.poll %pick]
-        %poke  pick-poke+!>((poke:msg %new-pick i p))
+      :~  (json-me:hc [%picked i v])
+          :*  %pass  /(scot %uv i)  %agent  [host.poll %pick]
+              %poke  pick-poke+!>((poke:msg %new-pick i p))
       ==  ==
     =.  poll
       %=  poll
@@ -175,21 +179,26 @@
 ++  on-watch
   |=  =path
   ^-  (quip card _this)
-  ::  intelligible?
-  ?>  ?=([@ %voters @ ~] path)
-  ::  appropriate?
-  =/  pid=@uv  (slav %uv i.path)
-  =/  pub=@udpoint  (slav %ud i.t.t.path)
-  ?~  poll=(~(get by peck) pid)
-    ~|([%invalid-poll pid] !!)
-  ~|  [%src-not-able src.bowl]
-  ?>  (~(has in pkey.u.poll) pub)
-  ::  allowed and updated
-  :_  this
-  :~  :*
-    %give  %fact  ~
-    pick-fact+!>((fact:msg %result tale.u.poll fate.u.poll))
-  ==  ==
+  ::  intelligible (either a vote or the web interface)
+  ?+    path  `this
+      [@ %voters @ ~]
+    ::  appropriate?
+    =/  pid=@uv  (slav %uv i.path)
+    =/  pub=@udpoint  (slav %ud i.t.t.path)
+    ?~  poll=(~(get by peck) pid)
+      ~|([%invalid-poll pid] !!)
+    ~|  [%src-not-able src.bowl]
+    ?>  (~(has in pkey.u.poll) pub)
+    ::  allowed and updated
+    :_  this
+    :~  :*
+      %give  %fact  ~
+      pick-fact+!>((fact:msg %result tale.u.poll fate.u.poll))
+    ==  ==
+  ::
+      [%website ~]
+    [~[(json-me:hc [%send ~])] this]
+  ==
 ::
 ++  on-leave  on-leave:def
 ::
@@ -239,14 +248,15 @@
       ?:  (levy tale ~(hist test-it:hc poll))
         ~&  >>>  [%pick %detects %fraud]
         ~&  >>>  [%result %lie]
-        :-  ~
+        :-  ~[(json-me:hc [%deceit pid ~])]
         %=  state
           peck  (~(del by peck) pid)
           lies  (~(put by lies) pid poll)
         ==
       =.  tale.poll  tale
       =.  fate.poll  fate
-      `state(peck (~(put by peck) pid poll))
+      :-  ~[(json-me:hc [%result pid tale.poll fate.poll~])]
+      state(peck (~(put by peck) pid poll))
     ==
   ::
   --
@@ -267,6 +277,10 @@
 --
 ::
 |_  =bowl:gall
+=*  pairs  pairs:enjs:format
+    frond  frond:enjs:format
+    numb   numb:enjs:format
+    sect   sect:enjs:format
 ++  our  (scot %p our.bowl)
 ++  src  (scot %p src.bowl)
 ++  now  (scot %da now.bowl)
@@ -333,7 +347,8 @@
   ++  clos
     |=  pid=knot
     ^-  (list card)
-    :~  :*
+    :~  (json-me [%result poll-id.pol tale.pol fate.pol])
+        :*
       %give  %fact
       ::
       %-  ~(rep in pkey.pol)
@@ -351,6 +366,7 @@
   =,  poll
   =/  =knot  (scot %uv poll-id)
   :-  [%pass /[knot]/timer %arvo %b %rest (add open stop)]
+  :- (json-me:hc [%result poll-id.poll tale.poll fate.pol])
   %+  welp  `(list card)`(~(clos test-it poll) knot)
   `(list card)`(~(dipp test-it poll) knot)
 ++  gerrymander
@@ -360,4 +376,106 @@
   ?~  lyt=(lyfe-of s)  o
   %-  ~(put in o)
   (keys-of s u.lyt)
+::
+++  json-me
+  |=  =send
+  |^
+  ^-  card
+  :^  %give  %fact  ~[/website]
+  :-  %json
+  !>  ^-  json
+  %-  pairs:enjs:format
+  ?-    -.send
+      %send
+    ~[pick+(puck pick) cast+cats lies+(puck lies)]
+  ::
+      %create
+    [new-poll+(puck (my [poll-id.send poll.send]~))]~
+  ::
+      %picked
+    :~  :-  %new-vote
+        (pairs ~[poid+s+(scot %uv poll-id.send) voat+(tell voat.send)])
+    ==
+  ::
+      %record
+    [recorded-vote+s+(scot %uv poll-id.send)]~
+  ::
+      %delete
+    [%deleted (pairs ~[[%poid s/(scot %uv poll-id.send)] [%name s/name.send]])]~
+  ::
+      %nupick
+    :~  :-  %new-vote
+        (pairs ~[[%poid s/(scot %uv poll-id.send)] [%voat (tell voat.send)]])
+    ==
+  ::
+      %nupoll
+    [%new-poll (puck (my [poll-id.send poll.send]~))]~
+  ::
+      %result
+    :~  :-  %result
+        %-  pairs
+        :~  [%poid s/(scot %uv poll-id.send)]
+            [%tale a/(turn tale.send tell)]
+            [%fate a/(~(urn by fate.send) teas)]
+    ==  ==
+  ::
+      %deceit
+    :~  [%lie-detected s/(scot %uv poll-id.send)]
+        [%pick (puck pick)]
+        [%cast (cats)]
+        [%lies (puck lies)]
+    ==
+      %fail
+    [%error s/act.send]~
+  ==
+  ::
+  ++  teas
+    |=  [p=pick v=(set voat)]
+    ^-  json
+    %-  frond  pick
+    a/(turn ~(tap in v) tell)
+  ::
+  ++  tell
+    |=  [p=pick s=slip]
+    ^-  json
+    %-  pairs
+    :~  [%pick s/p]
+        :-  %slip
+        %-  pairs
+        :~  [%ch0 (numb ch0.s)]
+            [%s a/(turn s.s numb)]
+            [%y ?~(y.s ~ (numb y.s))]
+    ==  ==
+  ::
+  ++  cats
+    ^-  json
+    :-  %a
+    %-  ~(rep by cast)
+    |=  [[p=poll-id v=voat] o=(list json)]
+    :_  o
+    %-  pairs
+    :~  [%poid s/(scot %uv p)]
+        [%voat (tell v)]
+    ==
+  ::
+  ++  puck
+    |=  muck=(map poll-id poll)
+    ^-  json
+    :-  %a
+    %-  ~(rep by muck)
+    |=  [=poll-id =poll o=(list json)]
+    :_  o
+    %-  pairs
+    :~  [%poid s/(scot %uv poll-id)]
+        [%host s/(scot %p host.poll)]
+        ::  maybe don't send this?
+        [%tale a/(turn tale.poll tell)]
+        [%fate a/(~(urn by fate.poll) teas)]
+        [%name s/name.poll]
+        [%opts a/(turn ~(tap in opts.poll) |=(o=@t) s/o)]
+        [%open (sect open.poll)]
+        [%clos (sect (add open.poll stop.poll))]
+        [%roll a/(turn ~(tap in able.poll) ship:enjs:format)]
+    ==
+  --
 --
